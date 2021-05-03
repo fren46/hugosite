@@ -38,9 +38,17 @@ jobs:
         with:
           push: true
           tags: fvalente95/hugo-site:${{ github.sha }}
+      
+      - name: Generate deploy yaml
+        uses: danielr1996/envsubst-action@1.0.0
+        with:
+          input: template-deploy.yaml
+          output: my-deploy.yaml
+        env:
+          IMG_TAG: ${{ github.sha }}
 
       - name: Deploy website on K8s cluster
         uses: giorio94/kubectl-oidc-action@1.1.0
         with:
           kubeconfig: ${{ secrets.KUBECONFIG }}
-          args: apply -f template-deploy.yaml --namespace=sandbox-s291486
+          args: apply -f my-deploy.yaml --namespace=sandbox-s291486
