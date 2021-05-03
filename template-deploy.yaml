@@ -1,0 +1,68 @@
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hugo-site
+spec:
+  selector:
+    matchLabels:
+      app: hugo-site
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hugo-site
+    spec:
+      containers:
+      - name: hugo-site
+        image: fvalente95/hugo-site:v0
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "4000m"
+---
+# Service of type ClusterIP
+apiVersion: v1
+kind: Service
+metadata:
+  name: hugo-site
+  labels:
+    app: hugo-site
+spec:
+  selector:
+    app: hugo-site
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hugo-site
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+spec:
+  tls:
+  - hosts:
+    - hugosites291486.crownlabs.polito.it
+    secretName: hugo-site-cert
+  rules:
+  - host: hugosites291486.crownlabs.polito.it
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: hugo-site
+            port:
+              number: 80
