@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: hugo-site
-        image: fvalente95/hugo-site:v1
+        image: fvalente95/hugo-site:${IMG_TAG}
         ports:
         - containerPort: 80
         resources:
